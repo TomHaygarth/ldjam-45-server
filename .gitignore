@@ -1,2 +1,5 @@
 # ignore the executable
 ldjam-45-server
+
+build/
+build.zip
