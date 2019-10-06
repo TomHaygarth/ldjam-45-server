@@ -154,6 +154,14 @@ function gameLoop(delta)
     player.move = false;
     render_dirty = true;
   }
+  if (player.rotate === true)
+  {
+    var rotation = Math.PI * (player.direction * 0.5);
+    fow_layer.rotation = rotation;
+
+    player.rotate = false;
+    render_dirty = true;
+  }
   if (render_dirty === true)
   {
     drawGame();
