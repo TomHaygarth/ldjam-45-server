@@ -24,6 +24,7 @@ document.body.appendChild(app.view);
 
 //load an image and run the `setup` function when it's done
 loader
+  .add("images/black.png")
   .add("images/tiling_floor.png")
   .add("images/wall_01.json")
   .load(setup);
@@ -56,6 +57,14 @@ function setup() {
     }
   }
 
+  // add placeholder player
+  let player_sprite = new TilingSprite(resources["images/black.png"].texture,
+                                      0.5 * tile_size,
+                                      0.5 * tile_size);
+  player_sprite.x = (screen_tile_width * tile_size * 0.5) - (tile_size * 0.25);
+  player_sprite.y = (screen_tile_height * tile_size * 0.5) - (tile_size * 0.25);
+  app.stage.addChild(player_sprite);
+
   // set the game render to dirty so we can redraw it
   render_dirty = true;
   // start the game loop
@@ -63,16 +72,59 @@ function setup() {
 }
 
 let render_dirty = false;
+let wall_tile_val = 1;
 
 function gameLoop(delta)
 {
+  if (player.move === true)
+  {
+    var x = player.pos.x;
+    var y = player.pos.y;
+
+    // up
+    if (player.direction === 0)
+    {
+      if (y-1 >= 0 && map.data[(x * map.height) + y - 1] !== wall_tile_val)
+      {
+        y -= 1;
+      }
+    }
+    //right
+    else if (player.direction === 1)
+    {
+      if (x+1 < map.width && map.data[((x + 1) * map.height) + y] !== wall_tile_val)
+      {
+        x += 1;
+      }
+    }
+    // down
+    else if (player.direction === 2)
+    {
+      if (y+1 < map.height && map.data[(x * map.height) + y + 1] !== wall_tile_val)
+      {
+        y += 1;
+      }
+    }
+    // left
+    else
+    {
+      if (x-1 >= 0 &&map.data[((x - 1) * map.height) + y] !== wall_tile_val)
+      {
+        x -= 1;
+      }
+    }
+
+    player.pos.x = x;
+    player.pos.y = y;
+
+    player.move = false;
+    render_dirty = true;
+  }
   if (render_dirty === true)
   {
     drawGame();
   }
 }
-
-let wall_tile_val = 1;
 
 function drawGame()
 {
