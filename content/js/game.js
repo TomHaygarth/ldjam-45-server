@@ -1,4 +1,4 @@
-let screen_tile_width = 11;
+let screen_tile_width = 9;
 let screen_tile_height = 9;
 let tile_size = 64;
 
@@ -8,6 +8,7 @@ let Application = PIXI.Application,
     resources = PIXI.Loader.shared.resources,
     Sprite = PIXI.Sprite;
     TilingSprite = PIXI.TilingSprite;
+    Container = PIXI.Container;
 
 //Create a Pixi Application
 let app = new Application({ 
@@ -29,7 +30,13 @@ loader
   .add("images/wall_01.json")
   .load(setup);
 
+  let wall_layer = new Container(),
+      player_layer = new Container(),
+      fow_layer = new Container(),
+      ui_layer = new Container()
+  
   let visible_tiles = Array(screen_tile_width * screen_tile_height);
+
   let wall_sheet;
 
 //This `setup` function will run when the image has loaded
@@ -47,23 +54,49 @@ function setup() {
   //initialise all the tiles
   for(i = 0; i < screen_tile_width; ++i){
     for(j = 0; j < screen_tile_height; ++j){
+      // create sprites for the wall layer
       var tile = new Sprite();
       tile.x = i * tile_size;
       tile.y = j * tile_size;
       tile.visible = false;
-      app.stage.addChild(tile);
+      wall_layer.addChild(tile);
 
-      visible_tiles[(i * screen_tile_height) + j] = tile
+      var idx = (j * screen_tile_width) + i;
+      visible_tiles[idx] = tile
+
+      // create fow tiles
+      let fow_sprite = new TilingSprite(resources["images/black.png"].texture,
+                                        tile_size,
+                                        tile_size);
+      fow_sprite.alpha = 1.0 - fow_alpha[idx];
+      fow_sprite.x = i * tile_size;
+      fow_sprite.y = j * tile_size;
+      fow_layer.addChild(fow_sprite);
     }
+
+    fow_layer.x = (screen_tile_width * tile_size * 0.5);
+    fow_layer.y = (screen_tile_height * tile_size * 0.5);
+    fow_layer.pivot.x = (screen_tile_width * tile_size * 0.5);
+    fow_layer.pivot.y = (screen_tile_width * tile_size * 0.5);
   }
 
   // add placeholder player
   let player_sprite = new TilingSprite(resources["images/black.png"].texture,
                                       0.5 * tile_size,
                                       0.5 * tile_size);
-  player_sprite.x = (screen_tile_width * tile_size * 0.5) - (tile_size * 0.25);
-  player_sprite.y = (screen_tile_height * tile_size * 0.5) - (tile_size * 0.25);
-  app.stage.addChild(player_sprite);
+    // player_sprite.anchor.x = 0.5;
+    // player_sprite.anchor.y = 0.5;
+  player_layer.x = (screen_tile_width * tile_size * 0.5);
+  player_layer.y = (screen_tile_height * tile_size * 0.5);
+  player_layer.pivot.x = (tile_size * 0.25);
+  player_layer.pivot.y = (tile_size * 0.25);
+
+  player_layer.addChild(player_sprite);
+
+  app.stage.addChild(wall_layer);
+  app.stage.addChild(player_layer);
+  app.stage.addChild(fow_layer);
+  app.stage.addChild(ui_layer);
 
   // set the game render to dirty so we can redraw it
   render_dirty = true;
@@ -72,6 +105,7 @@ function setup() {
 }
 
 let render_dirty = false;
+let empty_tile_val = 0;
 let wall_tile_val = 1;
 
 function gameLoop(delta)
@@ -84,7 +118,7 @@ function gameLoop(delta)
     // up
     if (player.direction === 0)
     {
-      if (y-1 >= 0 && map.data[(x * map.height) + y - 1] !== wall_tile_val)
+      if (y-1 >= 0 && map.data[((y-1) * map.width) + x] === empty_tile_val)
       {
         y -= 1;
       }
@@ -92,7 +126,7 @@ function gameLoop(delta)
     //right
     else if (player.direction === 1)
     {
-      if (x+1 < map.width && map.data[((x + 1) * map.height) + y] !== wall_tile_val)
+      if (x+1 < map.width && map.data[(y * map.width) + x + 1] === empty_tile_val)
       {
         x += 1;
       }
@@ -100,7 +134,7 @@ function gameLoop(delta)
     // down
     else if (player.direction === 2)
     {
-      if (y+1 < map.height && map.data[(x * map.height) + y + 1] !== wall_tile_val)
+      if (y+1 < map.height && map.data[((y+1) * map.width) + x] === empty_tile_val)
       {
         y += 1;
       }
@@ -108,7 +142,7 @@ function gameLoop(delta)
     // left
     else
     {
-      if (x-1 >= 0 &&map.data[((x - 1) * map.height) + y] !== wall_tile_val)
+      if (x-1 >= 0 &&map.data[(y * map.width) + x - 1] === empty_tile_val)
       {
         x -= 1;
       }
@@ -134,12 +168,12 @@ function drawGame()
     for (j = 0; j < screen_tile_height; j++) {
       var x = player.pos.x + i -half_w;
       var y = player.pos.y + j - half_h;
-      var tile_idx = (i * screen_tile_height) + j;
+      var tile_idx = (j * screen_tile_width) + i;
 
       var tile = visible_tiles[tile_idx];
       if (x >= 0 && x < map.width && y >= 0 && y < map.height)
       {
-        var map_idx = (x * map.height) + y;
+        var map_idx = (y * map.width) + x;
         var is_empty = map.data[map_idx] == 0;
 
         if (is_empty === true)
@@ -153,7 +187,7 @@ function drawGame()
           // left
           if (x-1 >= 0 && x-1 < map.width)
           {
-            if (map.data[((x-1) * map.height) + y] == wall_tile_val)
+            if (map.data[(y * map.width) + x-1] == wall_tile_val)
             {
               wall_tile_type += "l";
             }
@@ -161,7 +195,7 @@ function drawGame()
           // right
           if (x+1 >= 0 && x+1 < map.width)
           {
-            if (map.data[((x+1) * map.height) + y] == wall_tile_val)
+            if (map.data[(y * map.width) + x+1] == wall_tile_val)
             {
               wall_tile_type += "r";
             }
@@ -169,7 +203,7 @@ function drawGame()
           // up
           if (y-1 >= 0 && y-1 < map.height)
           {
-            if (map.data[(x * map.height) + y - 1] == wall_tile_val)
+            if (map.data[((y-1) * map.width) + x] == wall_tile_val)
             {
               wall_tile_type += "u";
             }
@@ -177,7 +211,7 @@ function drawGame()
           // down
           if (y+1 >= 0 && y+1 < map.height)
           {
-            if (map.data[(x * map.height) + y + 1] == wall_tile_val)
+            if (map.data[((y+1) * map.width) + x] == wall_tile_val)
             {
               wall_tile_type += "d";
             }
