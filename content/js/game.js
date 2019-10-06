@@ -1,4 +1,4 @@
-let screen_tile_width = 9;
+let screen_tile_width = 11;
 let screen_tile_height = 9;
 let tile_size = 64;
 
@@ -52,9 +52,11 @@ function setup() {
       tile.visible = false;
       app.stage.addChild(tile);
 
-      visible_tiles[(i * screen_tile_width) + j] = tile
+      visible_tiles[(i * screen_tile_height) + j] = tile
     }
   }
+
+  // set the game render to dirty so we can redraw it
   render_dirty = true;
   // start the game loop
   app.ticker.add(delta => gameLoop(delta));
@@ -76,16 +78,16 @@ function drawGame()
 {
   var half_w = Math.floor(screen_tile_width/2.0);
   var half_h = Math.floor(screen_tile_height/2.0);
-  for(i = 0; i < screen_tile_width; ++i) {
-    for (j = 0; j < screen_tile_height; ++j) {
+  for(i = 0; i < screen_tile_width; i++) {
+    for (j = 0; j < screen_tile_height; j++) {
       var x = player.pos.x + i -half_w;
       var y = player.pos.y + j - half_h;
-      var tile_idx = (i * screen_tile_width) + j;
+      var tile_idx = (i * screen_tile_height) + j;
 
       var tile = visible_tiles[tile_idx];
       if (x >= 0 && x < map.width && y >= 0 && y < map.height)
       {
-        var map_idx = (x * map.width) + y;
+        var map_idx = (x * map.height) + y;
         var is_empty = map.data[map_idx] == 0;
 
         if (is_empty === true)
@@ -99,7 +101,7 @@ function drawGame()
           // left
           if (x-1 >= 0 && x-1 < map.width)
           {
-            if (map.data[((x-1) * map.width) + y] == wall_tile_val)
+            if (map.data[((x-1) * map.height) + y] == wall_tile_val)
             {
               wall_tile_type += "l";
             }
@@ -107,7 +109,7 @@ function drawGame()
           // right
           if (x+1 >= 0 && x+1 < map.width)
           {
-            if (map.data[((x+1) * map.width) + y] == wall_tile_val)
+            if (map.data[((x+1) * map.height) + y] == wall_tile_val)
             {
               wall_tile_type += "r";
             }
@@ -115,7 +117,7 @@ function drawGame()
           // up
           if (y-1 >= 0 && y-1 < map.height)
           {
-            if (map.data[(x * map.width) + y - 1] == wall_tile_val)
+            if (map.data[(x * map.height) + y - 1] == wall_tile_val)
             {
               wall_tile_type += "u";
             }
@@ -123,7 +125,7 @@ function drawGame()
           // down
           if (y+1 >= 0 && y+1 < map.height)
           {
-            if (map.data[(x * map.width) + y + 1] == wall_tile_val)
+            if (map.data[(x * map.height) + y + 1] == wall_tile_val)
             {
               wall_tile_type += "d";
             }
