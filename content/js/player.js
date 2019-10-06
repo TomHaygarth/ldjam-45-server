@@ -1,4 +1,5 @@
 let player = {
+    player_id : 0,
     pos : {
         x : 4,
         y : 4

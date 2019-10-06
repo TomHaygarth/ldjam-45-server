@@ -26,6 +26,7 @@ document.body.appendChild(app.view);
 //load an image and run the `setup` function when it's done
 loader
   .add("images/black.png")
+  .add("images/player.png")
   .add("images/tiling_floor.png")
   .add("images/wall_01.json")
   .load(setup);
@@ -81,15 +82,13 @@ function setup() {
   }
 
   // add placeholder player
-  let player_sprite = new TilingSprite(resources["images/black.png"].texture,
-                                      0.5 * tile_size,
-                                      0.5 * tile_size);
+  player_sprite = new Sprite(resources["images/player.png"].texture);
     // player_sprite.anchor.x = 0.5;
     // player_sprite.anchor.y = 0.5;
   player_layer.x = (screen_tile_width * tile_size * 0.5);
   player_layer.y = (screen_tile_height * tile_size * 0.5);
-  player_layer.pivot.x = (tile_size * 0.25);
-  player_layer.pivot.y = (tile_size * 0.25);
+  player_layer.pivot.x = (tile_size * 0.5);
+  player_layer.pivot.y = (tile_size * 0.5);
 
   player_layer.addChild(player_sprite);
 
@@ -158,6 +157,7 @@ function gameLoop(delta)
   {
     var rotation = Math.PI * (player.direction * 0.5);
     fow_layer.rotation = rotation;
+    player_layer.rotation = rotation;
 
     player.rotate = false;
     render_dirty = true;
