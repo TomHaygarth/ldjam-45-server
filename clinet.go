@@ -3,7 +3,7 @@ package main
 
 import (
 	"log"
-	// "net/http"
+    "sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -24,9 +24,13 @@ const (
 )
 
 type Client struct {
-	playerId   int
-	map_state *MapState
-	// gameSocket *GameSocket
+	sync.RWMutex
+	playerId uint32
+	position Vec2u8
+	direction int
+	move bool
+
+	disconnected bool
 
 	// The websocket connection.
 	conn *websocket.Conn

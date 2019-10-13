@@ -24,13 +24,13 @@ func main() {
 }
 
 var upgrader = websocket.Upgrader{} // use default options
-var nextPlayerId = 2
+var nextPlayerId uint32 = 2
 // var gameSocket *GameSocket
 
 type PlayerConnectResponse struct {
-	Type int `json:"type"`
-	Player_id   int `json:"player_id"`
-	Position Vec2i `json:"pos"`
+	Type uint8 `json:"type"`
+	Player_id  uint32 `json:"player_id"`
+	Position Vec2u8 `json:"pos"`
 }
 
 func clientSocket(w http.ResponseWriter, r *http.Request) {
@@ -52,7 +52,6 @@ func clientSocket(w http.ResponseWriter, r *http.Request) {
 	
 	var client = &Client{
 		playerId:   nextPlayerId,
-		map_state: &map_state,
 		// gameSocket: gameSocket,
 		conn:       c,
 		send:       make(chan []byte, 256)}
@@ -64,16 +63,16 @@ func clientSocket(w http.ResponseWriter, r *http.Request) {
 	nextPlayerId += 1
 }
 
-func GetRandomEmptyPointInMap(map_state * MapState) Vec2i {
+func GetRandomEmptyPointInMap(map_state * MapState) Vec2u8 {
 	var found_result = false;
-	var result Vec2i
+	var result Vec2u8
 
 	map_state.Lock();
 	for found_result == false {
-		result.X = rand.Intn(map_width)
-		result.Y = rand.Intn(map_height)
+		result.X = uint8(rand.Intn(int(map_width)))
+		result.Y = uint8(rand.Intn(int(map_height)))
 
-		var map_idx = (result.Y * map_width) + result.X
+		var map_idx = (uint16(result.Y) * map_width) + uint16(result.X)
 		if (map_state.data[map_idx] == 0) {
 			found_result = true;
 		}

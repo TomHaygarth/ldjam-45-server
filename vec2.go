@@ -1,6 +1,6 @@
 package main
 
-type Vec2i struct {
-	X int `json:"x"`
-	Y int `json:"y"`
+type Vec2u8 struct {
+	X uint8 `json:"x"`
+	Y uint8 `json:"y"`
 }

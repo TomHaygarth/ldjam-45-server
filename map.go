@@ -5,19 +5,19 @@ import (
 )
 
 const (
-	map_width = 64
-	map_height = 64
+	map_width uint16 = 64
+	map_height uint16 = 64
 )
 
 type MapState struct {
 	sync.RWMutex
-	data [map_width * map_height]int
+	data [map_width * map_height]uint8
 }
 
 func init_map_data(map_state * MapState) {
 	map_state.Lock()
 
-	map_state.data = [map_width * map_height]int {
+	map_state.data = [map_width * map_height]uint8 {
 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,
 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,
