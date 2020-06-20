@@ -1,4 +1,4 @@
-var socket = new WebSocket("ws://" + location.host + "/gameSocket");
+var socket = new WebSocket("ws://" + location.host + "/");
 
 function OnGameMsgRecv(msg) {
 	var msgType = msg.type;

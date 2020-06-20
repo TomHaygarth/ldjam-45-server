@@ -101,7 +101,3 @@ func (c *Client) writePump() {
 		}
 	}
 }
-
-// func serveWs(gameSocket *GameSocket, w http.ResponseWriter, r *http.Request) {
-
-// }
